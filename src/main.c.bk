@@ -1,0 +1,186 @@
+// clang-format off
+#include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+
+#include <cglm/cglm.h>
+#include <cglm/mat4.h>
+#include <cglm/vec3.h>
+#include <cglm/cam.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "../include/linmath.h"
+// clang-format on
+
+typedef struct {
+	float x;
+	float y;
+} point;
+
+#define BLOCK_PIX_SIZE 0.1f
+
+#define ZERO_MAT4                                                                                \
+	{                                                                                            \
+		{0.f, 0.f, 0.f, 0.f}, {0.f, 0.f, 0.f, 0.f}, {0.f, 0.f, 0.f, 0.f}, { 0.f, 0.f, 0.f, 0.f } \
+	}
+
+GLfloat vertices[] = {
+	-BLOCK_PIX_SIZE, BLOCK_PIX_SIZE, 1.0f, 0.0f, 0.0f, // Top-left
+	BLOCK_PIX_SIZE, BLOCK_PIX_SIZE, 0.0f, 1.0f, 0.0f,  // Top-right
+	BLOCK_PIX_SIZE, -BLOCK_PIX_SIZE, 0.0f, 0.0f, 1.0f, // Bottom-right
+	-BLOCK_PIX_SIZE, -BLOCK_PIX_SIZE, 1.0f, 1.0f, 1.0f // Bottom-left
+};
+
+GLuint indices[] = {0, 1, 2, 2, 3, 0};
+
+static const char *vertex_shader_text =
+	"#version 330 core\n"
+	"layout (location = 0) in vec3 aPos;"
+	"uniform mat4 model;\n"
+	"uniform mat4 view;\n"
+	"uniform mat4 projection;\n"
+	"varying vec3 color;\n"
+	"void main()\n"
+	"{\n"
+	"    gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
+//	"    color = vCol;\n"
+	"}\n";
+
+static const char *fragment_shader_text =
+	"#version 110\n"
+	"varying vec3 color;\n"
+	"void main()\n"
+	"{\n"
+	"    gl_FragColor = vec4(color, 1.0);\n"
+	"}\n";
+
+static void error_callback(int error, const char *description) {
+	fprintf(stderr, "Error: %s\n", description);
+}
+
+static void key_callback(GLFWwindow *window, int key, int scancode, int action,
+						 int mods) {
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+int main(void) {
+	GLFWwindow *window;
+	GLuint vbo, vertex_shader, fragment_shader, program;
+	GLint mvp_location, vpos_location, vcol_location;
+
+	glfwSetErrorCallback(error_callback);
+
+	if (!glfwInit())
+		exit(EXIT_FAILURE);
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+
+	window = glfwCreateWindow(500, 500, "Simple example", NULL, NULL);
+	if (!window) {
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+
+	glfwSetKeyCallback(window, key_callback);
+
+	glfwMakeContextCurrent(window);
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		fprintf(stderr, "couldn't load glad\n");
+		exit(1);
+	}
+
+	glfwSwapInterval(1);
+
+	// NOTE: OpenGL error checks have been omitted for brevity
+
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	GLuint ebo;
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
+	glCompileShader(vertex_shader);
+
+	GLint status;
+	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &status);
+	if (!status) {
+		fprintf(stderr, "Could not load vertex shader\n");
+        char buffer[512];
+        glGetShaderInfoLog(vertex_shader, 512, NULL, buffer);
+        printf(buffer);
+	}
+
+	fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
+	glCompileShader(fragment_shader);
+
+	status;
+	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &status);
+	if (!status) {
+		fprintf(stderr, "Could not load fragment shader\n");
+	}
+
+	program = glCreateProgram();
+	glAttachShader(program, vertex_shader);
+	glAttachShader(program, fragment_shader);
+	glLinkProgram(program);
+
+	glEnableVertexAttribArray(vpos_location);
+	glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
+	glEnableVertexAttribArray(vcol_location);
+	glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void *)(sizeof(GLfloat) * 2));
+
+	glUseProgram(program);
+
+	while (!glfwWindowShouldClose(window)) {
+		float ratio;
+		int width, height;
+		glfwGetFramebufferSize(window, &width, &height);
+		ratio = width / (float)height;
+
+		mat4 model = GLM_MAT4_ZERO_INIT;
+		mat4 view = GLM_MAT4_ZERO_INIT;
+		mat4 projection = GLM_MAT4_ZERO_INIT;
+
+		glm_vec4_fill(model, 1);
+		glm_vec4_fill(view, 1);
+		glm_vec4_fill(projection, 1);
+
+		vec3 axis = {1.0f, 0.0f, 0.0f};
+		glm_rotate(model, -0.96, axis);
+		vec3 dist = {0.0f, 0.0f, -3.0f};
+		glm_translate(view, dist);
+		glm_perspective(0.79, 500 / 500, 0.1f, 100.0f, projection);
+
+		int modelLoc = glGetUniformLocation(program, "model");
+		int viewLoc = glGetUniformLocation(program, "view");
+		int projectionLoc = glGetUniformLocation(program, "projection");
+
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model);
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, view);
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, projection);
+
+		glViewport(0, 0, width, height);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+
+	glfwDestroyWindow(window);
+
+	glfwTerminate();
+	exit(EXIT_SUCCESS);
+}
