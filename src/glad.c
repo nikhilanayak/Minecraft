@@ -26,6 +26,9 @@
 
 static void* get_proc(const char *namez);
 
+//#undef _WIN32
+//#undef __CYGWIN__
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 #ifndef _WINDOWS_
 #undef APIENTRY

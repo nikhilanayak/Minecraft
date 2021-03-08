@@ -1,9 +1,9 @@
 SRC_FILES = $(wildcard src/*.c wildcard src/*.cpp)
 BIN_DIR = bin
 EXEC_FILE = game
-LIBS = dl GL glfw m freetype
+LIBS = dl GL glfw m
 
-INCLUDES = -I/usr/include/freetype2 -I/usr/include/libpng16
+INCLUDES = -I/usr/local/include# -L/lib/i386-linux-gnu -L/lib/x86_64-linux-gnu
 
 libstring = $(foreach lib, $(LIBS), -l$(lib))
 

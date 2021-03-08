@@ -168,6 +168,7 @@ int main(void) {
 	unsigned int texture1, texture2;
 	unsigned char *data;
 	int width, height, nrChannels;
+    ping
 
 	//	texture1 = load_tex("assets/container.jpg");
 	glGenTextures(1, &texture1);

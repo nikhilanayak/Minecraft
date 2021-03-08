@@ -1,0 +1,3 @@
+/home/nikhil/Programming/Game/build/CMakeFiles/rebuild_cache.dir
+/home/nikhil/Programming/Game/build/CMakeFiles/edit_cache.dir
+/home/nikhil/Programming/Game/build/CMakeFiles/Minecraft.dir

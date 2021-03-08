@@ -1,0 +1,1 @@
+/usr/bin/cc    CMakeFiles/Minecraft.dir/src/chunk.c.o CMakeFiles/Minecraft.dir/src/gl_vert.c.o CMakeFiles/Minecraft.dir/src/glad.c.o CMakeFiles/Minecraft.dir/src/main.c.o CMakeFiles/Minecraft.dir/src/shader.c.o CMakeFiles/Minecraft.dir/src/vec.c.o  -o Minecraft  -lglfw -lm -ldl -lGL 
