@@ -7,7 +7,6 @@ void chunk_init(chunk *c) {
 	memset(c->data, 0, sizeof(uint8_t) * CHUNK_SIZE * CHUNK_HEIGHT * CHUNK_SIZE);
 }
 
-
 #define addrow(vec, x, y, z, u, v) \
 	vector_add(&vec, x);           \
 	vector_add(&vec, y);           \
@@ -15,7 +14,6 @@ void chunk_init(chunk *c) {
 	vector_add(&vec, u);           \
 	vector_add(&vec, v);
 
-#define CUBE_SIZE 0.5f
 
 void build_mesh(chunk *c) {
 	fprintf(stderr, "meshing: ");
@@ -33,7 +31,6 @@ void build_mesh(chunk *c) {
 					CUBE_SIZE_X = CUBE_SIZE + x;
 					CUBE_SIZE_Y = CUBE_SIZE + y;
 					CUBE_SIZE_Z = CUBE_SIZE + z;
-
 
 					if (x - 1 < 0 || c->data[x - 1][y][z] == 0) {
 						addrow(verts, -CUBE_SIZE + x, CUBE_SIZE + y, CUBE_SIZE + z, 1.0f, 0.0f);
@@ -115,7 +112,8 @@ void build_mesh(chunk *c) {
 	vector_free(verts);
 }
 
-void render_chunk(chunk *c, vert *verts, unsigned int program, mat4 model, unsigned int modelLoc) {
+void render_chunk(chunk *c, mat4 model, unsigned int modelLoc, GLuint tex1, GLuint tex2, vert *verts) {
+
 	setMat4(modelLoc, model);
 	glBindVertexArray(c->VAO);
 	glDrawArrays(GL_TRIANGLES, 0, c->VBO_len);
@@ -126,4 +124,11 @@ void set_block(chunk *c, uint16_t x, uint16_t y, uint16_t z, uint8_t state) {
 }
 uint8_t get_block(chunk *c, uint16_t x, uint16_t y, uint16_t z) {
 	return c->data[x][y][z];
+}
+
+bool fsave_chunk(chunk* c, char* file_name){
+    
+}
+bool fload_chunk(chunk* c, char* file_name){
+
 }

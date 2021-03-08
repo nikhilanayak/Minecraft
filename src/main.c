@@ -7,6 +7,7 @@
 #include <cglm/mat4.h>
 #include <cglm/vec3.h>
 
+#include "../include/util.h"
 #include "../include/chunk.h"
 #include "../include/gl_vert.h"
 #include "../include/shader.h"
@@ -45,6 +46,7 @@ float lastY = 600.0 / 2.0;
 float fov = 45.0f;
 
 bool keymap[350];
+bool mousemap[12];
 
 #define X_POS 0
 #define X_MIN 1
@@ -53,7 +55,6 @@ bool keymap[350];
 #define Z_POS 4
 #define Z_MIN 5
 
-#define CUBE_SIZE 0.5f
 float faces[6][30] = {
 	{CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f, 0.0f,
 	 CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f, 1.0f,
@@ -108,12 +109,16 @@ float top_face[] = {
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void error_callback(int error, const char *description);
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
+
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void round_vec3(vec3 *vec);
 void movementFunction(float deltaTime);
 
 float xRot = 0.0f;
 float yRot = 0.0f;
+
+float time_since_last_block_update = 0.0f;
 
 int main(void) {
 	GLFWwindow *window;
@@ -136,6 +141,7 @@ int main(void) {
 	glfwSetErrorCallback(error_callback);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	glfwMakeContextCurrent(window);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -144,7 +150,7 @@ int main(void) {
 	}
 
 	puts("GPU: ");
-    puts(glGetString(GL_RENDERER));
+	puts(glGetString(GL_RENDERER));
 
 	//    puts()
 
@@ -170,8 +176,8 @@ int main(void) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	// load image, create texture and generate mipmaps
 
 	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
@@ -192,10 +198,10 @@ int main(void) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // set texture wrapping to GL_REPEAT (default wrapping method)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	// load image, create texture and generate mipmaps
-	data = stbi_load("assets/awesomeface.png", &width, &height, &nrChannels, 0);
+	data = stbi_load("assets/dirt.png", &width, &height, &nrChannels, 0);
 	if (data) {
 		// note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -217,8 +223,7 @@ int main(void) {
 	GLuint program = create_shader("./assets/shader.vs", "./assets/shader.fs");
 	glUseProgram(program);
 
-	glUniform1i(glGetUniformLocation(program, "texture1"), 0);
-	glUniform1i(glGetUniformLocation(program, "texture2"), 1);
+	glUniform1i(glGetUniformLocation(program, "tex"), 0);
 
 	mat4 projection = GLM_MAT4_IDENTITY_INIT;
 	glm_perspective(glm_rad(45.0f), 2560.0 / 1400.0, 0.1f, 1000.0f, projection);
@@ -248,14 +253,16 @@ int main(void) {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+
 		movementFunction(deltaTime);
 
-		if (keymap[GLFW_KEY_G]) {
+		if (mousemap[GLFW_MOUSE_BUTTON_LEFT]) {
+            time_since_last_block_update = 0;
 			vec3 sFront = {0.0f, 0.0f, 0.0f};
 			for (int i = 0; i < 10; i++) {
 				glm_vec3_scale(cameraFront, i, sFront);
 
-				vec3 newBlock = {cameraPos[0], cameraPos[1] - 1, cameraPos[2]};
+				vec3 newBlock = {cameraPos[0] + CUBE_SIZE, cameraPos[1] + CUBE_SIZE, cameraPos[2] + CUBE_SIZE};
 
 				glm_vec3_add(newBlock, sFront, newBlock);
 				round_vec3(&newBlock);
@@ -267,6 +274,27 @@ int main(void) {
 				}
 			}
 		}
+
+		if (mousemap[GLFW_MOUSE_BUTTON_RIGHT]) {
+            time_since_last_block_update = 0;
+			vec3 sFront = {0.0f, 0.0f, 0.0f};
+			for (int i = 9; i >= 0; i--) {
+				glm_vec3_scale(cameraFront, i, sFront);
+
+				vec3 newBlock = {cameraPos[0] + CUBE_SIZE, cameraPos[1] + CUBE_SIZE, cameraPos[2] + CUBE_SIZE};
+
+				glm_vec3_add(newBlock, sFront, newBlock);
+				round_vec3(&newBlock);
+				//			vector_add(&blocks, newBlock);
+				if (test_chunk.data[(int)newBlock[0]][(int)newBlock[1]][(int)newBlock[2]] == 0) {
+					test_chunk.data[(int)newBlock[0]][(int)newBlock[1]][(int)newBlock[2]] = 1;
+					build_mesh(&test_chunk);
+					break;
+				}
+			}
+		}
+
+
 
 		if (keymap[GLFW_KEY_0]) {
 			draw = true;
@@ -286,8 +314,6 @@ int main(void) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
 		glUseProgram(program);
@@ -300,8 +326,6 @@ int main(void) {
 		glm_vec3_add(cameraPos, cameraFront, center);
 		glm_lookat(cameraPos, center, cameraUp, view);
 
-		//glm_translate(model, (const vec3){glfwGetTime() / 10, 0.0f, 0.0f});
-
 		setMat4(viewLoc, view);
 		setMat4(modelLoc, model);
 
@@ -312,8 +336,8 @@ int main(void) {
 			for (int x = 0; x < 10; x++) {
 				for (int y = 0; y < 10; y++) {
 					glm_translate_make(model, (vec3){CHUNK_SIZE * x, 0, CHUNK_SIZE * y});
-                    setMat4(modelLoc, model);
-					render_chunk(&test_chunk, faces_vert, program, model, modelLoc);
+					setMat4(modelLoc, model);
+					render_chunk(&test_chunk, model, modelLoc, texture1, texture2, faces_vert);
 				}
 			}
 		}
@@ -428,4 +452,8 @@ void movementFunction(float deltaTime) {
 		glm_vec3_add(cameraPos, normalized, cameraPos);
 	}
 	cameraFront[1] = oldXAngle;
+}
+
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+	mousemap[button] = action == GLFW_PRESS ? 1 : 0;
 }
