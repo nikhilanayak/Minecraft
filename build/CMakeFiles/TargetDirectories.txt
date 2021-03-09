@@ -1,3 +1,9 @@
-/home/nikhil/Programming/Game/build/CMakeFiles/rebuild_cache.dir
-/home/nikhil/Programming/Game/build/CMakeFiles/edit_cache.dir
-/home/nikhil/Programming/Game/build/CMakeFiles/Minecraft.dir
+C:/Users/Nikhi/Desktop/ProgrammingProjects/C/Minecraft/build/CMakeFiles/INSTALL.dir
+C:/Users/Nikhi/Desktop/ProgrammingProjects/C/Minecraft/build/CMakeFiles/Minecraft.dir
+C:/Users/Nikhi/Desktop/ProgrammingProjects/C/Minecraft/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Nikhi/Desktop/ProgrammingProjects/C/Minecraft/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/Nikhi/Desktop/ProgrammingProjects/C/Minecraft/build/glfw/CMakeFiles/uninstall.dir
+C:/Users/Nikhi/Desktop/ProgrammingProjects/C/Minecraft/build/glfw/CMakeFiles/INSTALL.dir
+C:/Users/Nikhi/Desktop/ProgrammingProjects/C/Minecraft/build/glfw/CMakeFiles/ALL_BUILD.dir
+C:/Users/Nikhi/Desktop/ProgrammingProjects/C/Minecraft/build/glfw/src/CMakeFiles/glfw.dir
+C:/Users/Nikhi/Desktop/ProgrammingProjects/C/Minecraft/build/glfw/src/CMakeFiles/INSTALL.dir

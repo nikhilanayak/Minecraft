@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.jsx": "javascriptreact",
+        "*.json": "jsonc",
+        "functional": "cpp",
+        "optional": "cpp",
+        "system_error": "cpp",
+        "type_traits": "cpp",
+        "xlocmon": "cpp",
+        "xtr1common": "cpp"
+    }
+}

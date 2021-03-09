@@ -3,7 +3,6 @@
 #include <cglm/cglm.h>
 #include <cglm/mat4.h>
 #include <glad/glad.h>
-#include <dirent.h>
 #include <stddef.h>
 #include <stdio.h>
 

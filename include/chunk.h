@@ -7,9 +7,9 @@
 
 #include <glad/glad.h>
 
-#include "../include/cglm/cglm.h"
-#include "../include/cglm/mat4.h"
-#include "../include/cglm/vec3.h"
+#include <cglm/cglm.h>
+#include <cglm/mat4.h>
+#include <cglm/mat3.h>
 
 #include "../include/shader.h"
 #include "../include/gl_vert.h"

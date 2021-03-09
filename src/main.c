@@ -168,7 +168,7 @@ int main(void) {
 	unsigned int texture1, texture2;
 	unsigned char *data;
 	int width, height, nrChannels;
-    ping
+    //ping
 
 	//	texture1 = load_tex("assets/container.jpg");
 	glGenTextures(1, &texture1);
@@ -182,7 +182,7 @@ int main(void) {
 	// load image, create texture and generate mipmaps
 
 	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-	data = stbi_load("assets/container.jpg", &width, &height, &nrChannels, 0);
+	data = stbi_load("assets\\dirt.png", &width, &height, &nrChannels, 0);
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -190,6 +190,8 @@ int main(void) {
 		fputs(stderr, "Failed To Load Texture\n");
 	}
 	stbi_image_free(data);
+
+	
 
 	// texture 2
 	// ---------
@@ -202,7 +204,7 @@ int main(void) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	// load image, create texture and generate mipmaps
-	data = stbi_load("assets/dirt.png", &width, &height, &nrChannels, 0);
+	data = stbi_load("assets\\dirt.png", &width, &height, &nrChannels, 0);
 	if (data) {
 		// note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -211,6 +213,7 @@ int main(void) {
 		fputs(stderr, "Failed To Load Texture\n");
 	}
 	stbi_image_free(data);
+
 
 	if (!gltInit()) {
 		fprintf(stderr, "Failed to initialize glText\n");
@@ -221,7 +224,7 @@ int main(void) {
 	GLTtext *text1 = gltCreateText();
 	gltSetText(text1, "Hello World!");
 
-	GLuint program = create_shader("./assets/shader.vs", "./assets/shader.fs");
+	GLuint program = create_shader("assets\\shader.vs", "assets\\shader.fs");
 	glUseProgram(program);
 
 	glUniform1i(glGetUniformLocation(program, "tex"), 0);
@@ -244,7 +247,9 @@ int main(void) {
 			}
 		}
 	}
+	ping
 	build_mesh(&test_chunk);
+	ping
 
 	bool draw = false;
 
