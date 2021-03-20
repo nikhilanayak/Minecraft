@@ -7,6 +7,9 @@
         "system_error": "cpp",
         "type_traits": "cpp",
         "xlocmon": "cpp",
-        "xtr1common": "cpp"
+        "xtr1common": "cpp",
+        "load_gl.h": "c",
+        "world.h": "c",
+        "stdbool.h": "c"
     }
 }

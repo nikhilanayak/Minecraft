@@ -20,43 +20,21 @@ char *readFile(const char *path) {
 }
 
 void setMat4(GLuint location, mat4 mat) {
-	glUniformMatrix4fv(location, 1, GL_FALSE, mat);
+	glUniformMatrix4fv(location, 1, GL_FALSE, (const GLfloat*) mat);
 }
 
-void load_tex(GLuint *texture) {
 
-	int width, height, nrChannels;
+GLuint create_shader(const char *vert_path, const char *frag_path) {
 
-	glGenTextures(1, texture);
-	glBindTexture(GL_TEXTURE_2D, *texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // set texture wrapping to GL_REPEAT (default wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned char *data = stbi_load("assets/awesomeface.png", &width, &height, &nrChannels, 0);
-
-	if (data) {
-        ping
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        ping
-		glGenerateMipmap(GL_TEXTURE_2D);
-	} else {
-		fputs(stderr, "Failed To Load Texture\n");
-	}
-	stbi_image_free(data);
-}
-
-GLuint create_shader(const char *vertexShaderPath, const char *fragmentShaderPath) {
-
-	char *vertexShaderSource = readFile(vertexShaderPath);
-	char *fragmentShaderSource = readFile(fragmentShaderPath);
+	char *vertexShaderSource = readFile(vert_path);
+	char *fragmentShaderSource = readFile(frag_path);
 
 	GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertShader, 1, &vertexShaderSource, NULL);
+	glShaderSource(vertShader, 1, (const GLchar *const*)&vertexShaderSource, NULL);
 	glCompileShader(vertShader);
 
 	GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragShader, 1, &fragmentShaderSource, NULL);
+	glShaderSource(fragShader, 1, (const GLchar *const*)&fragmentShaderSource, NULL);
 	glCompileShader(fragShader);
 
 	free(vertexShaderSource);
@@ -86,9 +64,39 @@ GLuint create_shader(const char *vertexShaderPath, const char *fragmentShaderPat
 	if (!status) {
 		char buffer[512];
 		glGetProgramInfoLog(program, 512, NULL, buffer);
-		puts("Linking ERR: \n");
-		puts(buffer);
+		fputs("Linking ERR: \n", stderr);
+		fputs(buffer, stderr);
 	}
 
 	return program;
+}
+
+
+GLuint load_tex(const char* image_path) {
+	GLuint tex;
+	
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	stbi_set_flip_vertically_on_load(
+		true); // tell stb_image.h to flip loaded texture's on the y-axis.
+
+	int width, height, nrChannels;
+	unsigned char *data = stbi_load(image_path, &width, &height, &nrChannels, 4);
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+					 GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	} else {
+		fputs("Failed To Load Texture\n", stderr);
+	}
+	stbi_image_free(data);
+
+	return tex;
 }

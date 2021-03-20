@@ -13,7 +13,7 @@
 
 #include "../include/shader.h"
 #include "../include/gl_vert.h"
-#include "../include/vec.h"
+#include "../include/datastructures/vec.h"
 #include "../include/util.h"
 
 
@@ -26,16 +26,17 @@
 #define Z_MIN 5
 
 typedef struct{
-    int8_t data[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
+    blockstate data[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
     unsigned int VAO;
     unsigned int VBO;
     unsigned int VBO_len;
+    int64_t pos[2];
 
 } chunk;
 
 void build_mesh(chunk *c);
-void chunk_init(chunk* c);
-void render_chunk(chunk *c, mat4 model, unsigned int modelLoc, GLuint tex1, GLuint tex2, vert* vert);
+void init_chunk(chunk* c, int64_t pos_x, int64_t pos_z);
+void render_chunk(chunk *c, mat4 model, unsigned int modelLoc);
 bool fsave_chunk(chunk* c, char* file_name);
 bool fload_chunk(chunk* c, char* file_name);
 

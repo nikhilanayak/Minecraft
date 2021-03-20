@@ -6,9 +6,10 @@
 #include <stddef.h>
 #include <stdio.h>
 
-//GLuint create_shader(const char *vertexShaderPath, const char *fragmentShaderPath);
-void setMat4(GLuint location, mat4 mat);
+#include "../include/stb_image.h"
 
-void load_tex(GLuint* texture1);
+GLuint create_shader(const char *vert_path, const char *frag_path);
+void setMat4(GLuint location, mat4 mat);
+GLuint load_tex(const char* image_path);
 
 #endif

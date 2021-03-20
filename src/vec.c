@@ -5,7 +5,7 @@
  * under the terms of the MIT license. See LICENSE for details.
  */
 
-#include "../include/vec.h"
+#include "../include/datastructures/vec.h"
 
 
 int vec_expand_(char **data, int *length, int *capacity, int memsz) {
