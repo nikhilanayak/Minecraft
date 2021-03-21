@@ -33,6 +33,7 @@
 
 vec3 player_pos = {0.0f, CHUNK_HEIGHT, 0.0f};
 vec3 camera_front = {0.0f, 0.0f, -1.0f};
+vec3 camera_front_without_y = {0.0f, 0.0f, -1.0f};
 vec3 camera_up = {0.0f, 1.0f, 0.0f};
 
 float delta_time = 0.0f; // time between current frame and last frame
@@ -307,11 +308,22 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 	if (pitch < -89.0f)
 		pitch = -89.0f;
 
+
 	vec3 front = {0.0f, 0.0f, 0.0f};
 	front[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
 	front[1] = sin(glm_rad(pitch));
 	front[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
 	glm_normalize_to(front, camera_front);
+
+
+
+    glm_vec3_zero(front);
+	front[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
+    front[1] = 0;
+	front[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
+	glm_normalize_to(front, camera_front_without_y);
+
+
 }
 
 void round_vec3(vec3 *vec) {
@@ -328,7 +340,7 @@ void player_movement(float delta_time) {
     //printf("%.3f, %.3f, %.3f\n", camera_front[0], camera_front[1], camera_front[2]);
 
     vec3 altered_camera_front = {0.0f, 0.0f, 0.0f};
-    glm_vec3_copy(camera_front, altered_camera_front);
+    glm_vec3_copy(camera_front_without_y, altered_camera_front);
 
     //altered_camera_front[1] = 0.0f;
     //altered_camera_front[2] = -1.0f;
