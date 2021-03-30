@@ -10,6 +10,8 @@
         "xtr1common": "cpp",
         "load_gl.h": "c",
         "world.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "vec.h": "c",
+        "chunk.h": "c"
     }
 }

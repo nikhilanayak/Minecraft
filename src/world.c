@@ -1,5 +1,7 @@
 #include "../include/world.h"
 
+
+
 int chunk_compare(const void *a_, const void *b_, const void *udata) {
 	const chunk *a = a_;
 	const chunk *b = b_;
@@ -9,15 +11,21 @@ int chunk_compare(const void *a_, const void *b_, const void *udata) {
 
 uint64_t chunk_hash(const void *item, uint64_t seed0, uint64_t seed1) {
 	const chunk *c = item;
-	return hashmap_sip(c->pos, sizeof(int64_t) * 2, seed0, seed1);
+	return hashmap_murmur(c->pos, sizeof(int64_t) * 2, seed0, seed1);
+}
+
+bool chunk_iter(const void* item, void* udata){
+    chunk* c = item;
+    free(c);
+    return true;
 }
 
 void init_world(world *w) {
 	w->data = hashmap_new(sizeof(chunk), 0, 0, 0, chunk_hash, chunk_compare, NULL);
 }
 void deinit_world(world *w) {
+    //hashmap_scan(w->data, chunk_iter, NULL);
 	hashmap_free(w->data);
-	free(w);
 }
 
 void add_chunk_from_worldpos(world *w, int64_t x, int64_t z) {
@@ -25,21 +33,22 @@ void add_chunk_from_worldpos(world *w, int64_t x, int64_t z) {
 	add_chunk_from_chunkpos(w, chunk_pos.x, chunk_pos.z);
 }
 void add_chunk_from_chunkpos(world *w, int64_t x, int64_t z) {
-	chunk *c = malloc(sizeof(chunk));
-	init_chunk(c, x, z);
+	//chunk *c = malloc(sizeof(chunk));
+    chunk c;
+	init_chunk(&c, x, z);
 
 #define off 1
 	for (int _x = 0; _x < CHUNK_SIZE; _x += off) {
-		for (int _y = 0; _y < CHUNK_HEIGHT; _y += off) {
+		for (int _y = 0; _y < CHUNK_HEIGHT/2; _y += off) {
 			for (int z = 0; z < CHUNK_SIZE; z += off) {
-				c->data[_x][_y][z] = 1;
+				c.data[_x][_y][z] = 1;
 			}
 		}
 	}
 
-	build_mesh(c);
+	build_mesh(&c);
 
-	hashmap_set(w->data, c);
+	hashmap_set(w->data, &c);
 }
 
 void world_set_block(world *w, i64_coord *pos, blockstate state) {

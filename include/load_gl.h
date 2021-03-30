@@ -10,7 +10,7 @@
 
 GLFWwindow *load_gl(
 	char *title,
-	void (*error_callback)(int, char *),
+    GLFWerrorfun error_callback,
 	void (*key_callback)(GLFWwindow *window, int key, int scancode, int action, int mods),
 	void (*mouse_callback)(GLFWwindow *window, double xpos, double ypos),
 	void (*mouse_button_callback)(GLFWwindow *window, int button, int action, int mods),
@@ -27,7 +27,8 @@ GLFWwindow *load_gl(
 
 	const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-	GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, title, glfwGetPrimaryMonitor(), NULL);
+//	GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, title, glfwGetPrimaryMonitor(), NULL);
+	GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, title, NULL, NULL);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	if (!window) {

@@ -26,5 +26,9 @@ void render_chunk_at_world_pos(world* w, i64_coord* pos, mat4 model, GLuint mode
 void render_chunk_at_chunk_pos(world *w, int64_t x, int64_t z, mat4 model, GLuint modelLoc);
 i64_coord world_pos_to_chunk_pos(const i64_coord* c);
 
+void trend(world* w, mat4 model, GLuint modelLoc);
+
+chunk test[20][20];
+
 
 #endif

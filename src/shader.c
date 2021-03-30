@@ -2,7 +2,7 @@
 
 #define ping fprintf(stderr, "ping from %d\n", __LINE__);
 
-char *readFile(const char *path) {
+char *read_file(const char *path) {
 
 	FILE *file = fopen(path, "rb");
 	if (file == NULL) {
@@ -26,8 +26,8 @@ void setMat4(GLuint location, mat4 mat) {
 
 GLuint create_shader(const char *vert_path, const char *frag_path) {
 
-	char *vertexShaderSource = readFile(vert_path);
-	char *fragmentShaderSource = readFile(frag_path);
+	char *vertexShaderSource = read_file(vert_path);
+	char *fragmentShaderSource = read_file(frag_path);
 
 	GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertShader, 1, (const GLchar *const*)&vertexShaderSource, NULL);

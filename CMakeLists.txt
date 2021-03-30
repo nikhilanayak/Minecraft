@@ -13,6 +13,9 @@ include_directories(ThirdPartyIncludes)
 include_directories("glfw/include")
 
 add_subdirectory("glfw")
+#set(DBUILD_SHARED_LIBS, "ON")
+#add_subdirectory("raylib")
+
 add_executable(Minecraft ${source_files} "src/glad.c")
 
 
@@ -22,6 +25,7 @@ target_link_libraries(Minecraft "opengl32.lib")
 endif (WIN32)
 if (UNIX)
 target_link_libraries(Minecraft "-lGL")
+set(CMAKE_C_FLAGS "-ggdb3")
 endif (UNIX)
 target_link_libraries(Minecraft glfw ${GLFW_LIBRARIES})
 
