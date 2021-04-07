@@ -19,26 +19,22 @@ char *read_file(const char *path) {
 	return fileContents;
 }
 
-void setMat4(GLuint location, mat4 mat) {
-	glUniformMatrix4fv(location, 1, GL_FALSE, (const GLfloat*) mat);
-}
-
 
 GLuint create_shader(const char *vert_path, const char *frag_path) {
 
-	char *vertexShaderSource = read_file(vert_path);
-	char *fragmentShaderSource = read_file(frag_path);
+	char *vertex_shader_source = read_file(vert_path);
+	char *fragment_shader_source = read_file(frag_path);
 
 	GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertShader, 1, (const GLchar *const*)&vertexShaderSource, NULL);
+	glShaderSource(vertShader, 1, (const GLchar *const*)&vertex_shader_source, NULL);
 	glCompileShader(vertShader);
 
 	GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragShader, 1, (const GLchar *const*)&fragmentShaderSource, NULL);
+	glShaderSource(fragShader, 1, (const GLchar *const*)&fragment_shader_source, NULL);
 	glCompileShader(fragShader);
 
-	free(vertexShaderSource);
-	free(fragmentShaderSource);
+	free(vertex_shader_source);
+	free(fragment_shader_source);
 
 	GLint status;
 	glGetShaderiv(vertShader, GL_COMPILE_STATUS, &status);

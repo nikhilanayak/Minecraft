@@ -8,7 +8,7 @@
 
 #include "../include/camera.h"
 #include "../include/chunk.h"
-#include "../include/gl_vert.h"
+#include "../include/gl_obj.h"
 #include "../include/load_gl.h"
 #include "../include/shader.h"
 #include "../include/util.h"
@@ -17,27 +17,35 @@
 #include "../include/datastructures/hashmap.h"
 #include "../include/datastructures/vec.h"
 
-//#define RAYGUI_IMPLEMENTATION
-//#define RAYGUI_SUPPORT_ICONS
-//#include "../include/raygui.h"
+#define NK_INCLUDE_FIXED_TYPES
+#define NK_INCLUDE_STANDARD_IO
+#define NK_INCLUDE_STANDARD_VARARGS
+#define NK_INCLUDE_DEFAULT_ALLOCATOR
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_DEFAULT_FONT
+#define NK_IMPLEMENTATION
+#define NK_GLFW_GL3_IMPLEMENTATION
+#define NK_KEYSTATE_BASED_INPUT
+#include "../include/nuklear.h"
+#include "../include/nuklear_glfw_gl3.h"
+#define MAX_VERTEX_BUFFER 512 * 1024
+#define MAX_ELEMENT_BUFFER 128 * 1024
 
-//#include "../include/hashmap_test.h"
-
-#define GLT_IMPLEMENTATION
-#include "../include/gltext.h"
-
-#define STB_IMAGE_IMPLEMENTATION
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
+#define STB_IMAGE_IMPLEMENTATION
 #include "../include/stb_image.h"
 
 #define ping fprintf(stderr, "ping from %d\n", __LINE__);
 
 float delta_time = 0.0f;
 float last_frame = 0.0f;
+
+bool show_gui = false;
 
 camera c;
 
@@ -105,9 +113,16 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void round_vec3(vec3 *vec);
 void world_to_screen(vec3 point, mat4 viewMatrix, mat4 projMatrix, vec2 dest, int width, int height);
+bool world_point_seen(vec3 point, mat4 viewMatrix, mat4 projMatrix, int width, int height);
+
+#define addrow(vec, x, y, z, u, v) \
+	vec_push(&vec, x);             \
+	vec_push(&vec, y);             \
+	vec_push(&vec, z);             \
+	vec_push(&vec, u);             \
+	vec_push(&vec, v);
 
 int main(void) {
-
 
 	GLFWwindow *window = load_gl("mimecraft", error_callback, key_callback, mouse_callback, mouse_button_callback, true);
 
@@ -121,37 +136,111 @@ int main(void) {
 	GLuint cube_VAOs[6];
 	GLuint cube_VBOs[6];
 
-	for (int i = 0; i < 6; i++) {
-		glGenVertexArrays(1, cube_VAOs[i]);
-		glGenBuffers(1, cube_VBOs[1]);
-		glBindVertexArray(cube_VAOs[i]);
+	gl_obj cube;
+	vec_t(float) verts;
+	vec_init(&verts);
 
-		glBindBuffer(GL_ARRAY_BUFFER, cube_VBOs[i]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 30, faces[i], GL_STATIC_DRAW);
+	{
+		unsigned int num_verts = 0;
+		int x = 0, y = 0, z = 0;
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-							  (void *)(3 * sizeof(float)));
-		glEnableVertexAttribArray(1);
+		addrow(verts, -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   0.0f);
+		addrow(verts, -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f,
+			   1.0f);
+		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   1.0f);
+		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   1.0f);
+		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f,
+			   0.0f);
+		addrow(verts, -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   0.0f);
+		num_verts += 6;
+
+		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   0.0f);
+		addrow(verts, CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f,
+			   1.0f);
+		addrow(verts, CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   1.0f);
+		addrow(verts, CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   1.0f);
+		addrow(verts, CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f,
+			   0.0f);
+		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   0.0f);
+		num_verts += 6;
+
+		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   1.0f);
+		addrow(verts, CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 1.0f,
+			   1.0f);
+		addrow(verts, CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   0.0f);
+		addrow(verts, CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   0.0f);
+		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f,
+			   0.0f);
+		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   1.0f);
+		num_verts += 6;
+
+		addrow(verts, -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   1.0f);
+		addrow(verts, CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f,
+			   1.0f);
+		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   0.0f);
+		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   0.0f);
+		addrow(verts, -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0.0f,
+			   0.0f);
+		addrow(verts, -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   1.0f);
+		num_verts += 6;
+
+		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   0.0f);
+		addrow(verts, CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 1.0f,
+			   0.0f);
+		addrow(verts, CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f,
+			   1.0f);
+		addrow(verts, CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f,
+			   1.0f);
+		addrow(verts, -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   1.0f);
+		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
+			   0.0f);
+		num_verts += 6;
+		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f,
+			   0.0f);
+		addrow(verts, CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   0.0f);
+		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   1.0f);
+		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
+			   1.0f);
+		addrow(verts, -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0.0f,
+			   1.0f);
+		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f,
+			   0.0f);
+		num_verts += 6;
+
+		fprintf(stderr, "%d", num_verts);
+		fprintf(stderr, "\n");
+
+		bind_vert(&cube, verts.data, 5 * num_verts);
+
+		vec_deinit(&verts);
 	}
-
-	if (!gltInit()) {
-		fprintf(stderr, "Failed to initialize glText\n");
-		glfwTerminate();
-		return EXIT_FAILURE;
-	}
-
-	GLTtext *text1 = gltCreateText();
-	GLTtext *current_chunk_text = gltCreateText();
-
-	gltSetText(text1, "Hello World!");
 
 	GLuint program = create_shader("assets/shader.vs", "assets/shader.fs");
 	glUseProgram(program);
 	glUniform1i(glGetUniformLocation(program, "tex"), 0);
 
-	camera_init(&c);
+	const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	camera_init(&c, mode->width, mode->height);
 	c.fov = 90.0f;
 
 	mat4 projection = GLM_MAT4_IDENTITY_INIT;
@@ -159,21 +248,42 @@ int main(void) {
 	unsigned int projectionLoc = glGetUniformLocation(program, "projection");
 	unsigned int modelLoc = glGetUniformLocation(program, "model");
 	unsigned int viewLoc = glGetUniformLocation(program, "view");
-	setMat4(projectionLoc, projection);
+	set_mat4(projectionLoc, projection);
 
 	world main_world;
 	init_world(&main_world);
 
-	c.position[1] = CHUNK_HEIGHT / 2;
+	c.position[1] = 0;
+
+	struct nk_glfw nk_glfw_obj = {0};
+	struct nk_context *ctx = nk_glfw3_init(&nk_glfw_obj, window, NK_GLFW3_DEFAULT);
+	struct nk_colorf bg;
+
+	struct nk_font_atlas *atlas;
+	nk_glfw3_font_stash_begin(&nk_glfw_obj, &atlas);
+	nk_glfw3_font_stash_end(&nk_glfw_obj);
+	bg.r = 1.00f, bg.g = 0.18f, bg.b = 0.24f, bg.a = 0.0f;
+
 	while (!glfwWindowShouldClose(window)) {
 
 		float currentFrame = glfwGetTime();
 		delta_time = currentFrame - last_frame;
 		last_frame = currentFrame;
 
-		camera_update(&c, keymap, delta_time);
+		if (!show_gui) {
+			camera_update(&c, keymap, delta_time);
+		}
 
-		if (mousemap[GLFW_MOUSE_BUTTON_LEFT]) {
+		if (keymap[GLFW_KEY_ESCAPE]) {
+			show_gui = true;
+			window_show_mouse(window);
+		}
+		if (keymap[GLFW_KEY_E]) {
+			show_gui = false;
+			window_hide_mouse(window);
+		}
+
+		if (!show_gui && mousemap[GLFW_MOUSE_BUTTON_LEFT]) {
 			vec3 sFront = {0.0f, 0.0f, 0.0f};
 			for (int i = 0; i < 10; i++) {
 				glm_vec3_scale(c.front, i, sFront);
@@ -188,7 +298,7 @@ int main(void) {
 			}
 		}
 
-		if (mousemap[GLFW_MOUSE_BUTTON_RIGHT]) {
+		if (!show_gui && mousemap[GLFW_MOUSE_BUTTON_RIGHT]) {
 			vec3 sFront = {0.0f, 0.0f, 0.0f};
 			for (int i = 9; i >= 0; i--) {
 				glm_vec3_scale(c.front, i, sFront);
@@ -200,7 +310,7 @@ int main(void) {
 				glm_vec3_add(newBlock, sFront, newBlock);
 				round_vec3(&newBlock);
 
-				if (world_get_block(&main_world, newBlock[0], newBlock[1], newBlock[2] == 0)) {
+				if (world_get_block(&main_world, newBlock[0], newBlock[1], newBlock[2]) == 0) {
 					world_set_block(&main_world, &(i64_coord){.x = newBlock[0], .y = newBlock[1], .z = newBlock[2]}, 1);
 					break;
 				}
@@ -230,71 +340,83 @@ int main(void) {
 		glm_vec3_add(c.position, c.front, center);
 		glm_lookat(c.position, center, c.up, view);
 
-		setMat4(viewLoc, view);
-		setMat4(modelLoc, model);
+		set_mat4(viewLoc, view);
+		set_mat4(modelLoc, model);
 
 		i64_coord chunk_pos = world_pos_to_chunk_pos(&(const i64_coord){.x = c.position[0], c.position[1], c.position[2]});
 
 		for (int x = chunk_pos.x - RENDER_DISTANCE / 2; x <= chunk_pos.x + RENDER_DISTANCE / 2; x++) {
 			for (int z = chunk_pos.z - RENDER_DISTANCE / 2; z <= chunk_pos.z + RENDER_DISTANCE / 2; z++) {
-				render_chunk_at_chunk_pos(&main_world, x, z, model, modelLoc);
+				//render_chunk_at_chunk_pos(&main_world, x, z, model, modelLoc);
 			}
 		}
 
-		vec3 sFront = {0.0f, 0.0f, 0.0f};
-		for (int i = 0; i < 10; i++) {
-			glm_vec3_scale(c.front, i, sFront);
-
-			vec3 newBlock = {c.position[0] + CUBE_SIZE,
-							 c.position[1] + CUBE_SIZE,
-							 c.position[2] + CUBE_SIZE};
-
-			glm_vec3_add(newBlock, sFront, newBlock);
-			round_vec3(&newBlock);
-			if (world_get_block(&main_world, newBlock[0], newBlock[1], newBlock[2]) == 1) {
-				// draw cube
-				glBindTexture(GL_TEXTURE_2D, hover_tex);
-
-				glm_translate_make(model, (vec3){
-											  0.0f, 150.0f, 0.0f});
-				setMat4(modelLoc, model);
-
-				for (int i = 0; i < 6; i++) {
-					glBindVertexArray(cube_VAOs[i]);
-					glDrawArrays(GL_TRIANGLES, 0, 6);
+		vec3 cull_point = {0.0f, 0.0f, 0.0f};
+		int seen = 0;
+		bool seen_arr[2][2][2] = {false};
+#define CUBE_SIZE 0.5
+		for (int x = 0; x < 2; x++) {
+			for (int y = 0; y < 2; y++) {
+				for (int z = 0; z < 2; z++) {
+					seen_arr[x][y][z] = world_point_seen(
+						(vec3){
+							cull_point[0] + (x ? CUBE_SIZE : -CUBE_SIZE),
+							cull_point[1] + (y ? CUBE_SIZE : -CUBE_SIZE),
+							cull_point[2] + (z ? CUBE_SIZE : -CUBE_SIZE)},
+						view, projection, width, height);
+					seen += seen_arr[x][y][z];
 				}
-				break;
 			}
 		}
 
-		vec2 screen_pos = {0.0f, 0.0f};
-		//world_to_screen((const vec3){1.0f, 1.0f, 1.0f}, view, projection, screen_pos, width, height);
-		//printf("%d, %d\n", screen_pos[0], screen_pos[1]);
+		for (int x = 0; x < 2; x++) {
+			for (int y = 0; y < 2; y++) {
+				printf("%d ", seen_arr[x][y][0]);
+			}
+			puts("\n");
+		}
 
-		gltBeginDraw();
+		if (seen) {
+			glm_translate_make(model, (vec3){0.0f, 0.0f, 0.0f});
+			set_mat4(modelLoc, model);
+			glBindVertexArray(cube.VAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		} else {
+			printf("not rendering\n\n");
+		}
 
-		char current_chunk_str[50];
-		i64_coord c_pos = world_pos_to_chunk_pos(&(i64_coord){.x = c.position[0], .y = c.position[1], .z = c.position[2]});
-		sprintf(current_chunk_str, "pos: %.3f, %.3f. current chunk: %ld, %ld", c.position[0], c.position[2], c_pos.x, c_pos.z);
-		gltSetText(current_chunk_text, current_chunk_str);
-		gltColor(1.0f, 1.0f, 1.0f, 0.0f);
-		gltDrawText2DAligned(current_chunk_text, 0.0f, 45.0f, 1.0f, GLT_LEFT, GLT_BOTTOM);
+		if (true) {
+			nk_glfw3_new_frame(&nk_glfw_obj);
 
-		char fps_str[6];
-		sprintf(fps_str, "%.3f", (1.0 / delta_time));
-		gltSetText(text1, fps_str);
-		gltColor(1.0f, 1.0f, 1.0f, 0.0f);
-		gltDrawText2DAligned(text1, 0.0f, 25.0f, 1.0f, GLT_LEFT, GLT_BOTTOM);
+			if (nk_begin(ctx, "Demo", nk_rect(0, 0, width / 5, height / 5),
+						 NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
+							 NK_WINDOW_MINIMIZABLE)) {
 
-		gltEndDraw();
+				nk_layout_row_dynamic(ctx, 30, 2);
+
+				char str[40] = {0};
+				for (int x = 0; x < 2; x++) {
+					for (int y = 0; y < 2; y++) {
+						if (seen_arr[x][y][0]) {
+							nk_label(ctx, "0", NK_TEXT_LEFT);
+						} else {
+							nk_label(ctx, "1", NK_TEXT_LEFT);
+						}
+					}
+				}
+
+				nk_label(ctx, str, NK_TEXT_LEFT);
+			}
+			nk_end(ctx);
+
+			nk_glfw3_render(&nk_glfw_obj, NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
+			glEnable(GL_DEPTH_TEST);
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 	deinit_world(&main_world);
-
-	gltDeleteText(current_chunk_text);
-	gltDeleteText(text1);
 
 	glDeleteTextures(1, &dirt_tex);
 
@@ -316,7 +438,9 @@ static void error_callback(int error, const char *description) {
 }
 
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
-	camera_mouse_movement(&c, xpos, ypos);
+	if (!show_gui) {
+		camera_mouse_movement(&c, xpos, ypos);
+	}
 }
 
 void round_vec3(vec3 *vec) {
@@ -337,9 +461,10 @@ void world_to_screen(vec3 point, mat4 viewMatrix, mat4 projMatrix, vec2 dest, in
 	vec4 point_v4 = {point[0], point[1], point[2], 1.0f};
 
 	glm_mat4_mulv(viewMatrix, point_v4, view_space_pos);
-	glm_mat4_mul(projMatrix, view_space_pos, clip_space_pos);
+	glm_mat4_mulv(projMatrix, view_space_pos, clip_space_pos);
 
 	if (clip_space_pos[3] == 0.0f) {
+		printf("%.3f", glfwGetTime());
 		printf("clip space is 0\n");
 	}
 
@@ -354,8 +479,12 @@ void world_to_screen(vec3 point, mat4 viewMatrix, mat4 projMatrix, vec2 dest, in
 
 	glm_vec2_mul(window_space_pos, (vec2){width, height}, window_space_pos);
 
-	printf("%.3f, %.3f\n", window_space_pos[0], window_space_pos[1]);
+	dest[0] = window_space_pos[0];
+	dest[1] = window_space_pos[1];
+}
 
-	/*dest[0] = window_space_pos[0];
-    dest[1] = window_space_pos[1];*/
+bool world_point_seen(vec3 point, mat4 viewMatrix, mat4 projMatrix, int width, int height) {
+	vec2 dest;
+	world_to_screen(point, viewMatrix, projMatrix, dest, width, height);
+	return !((dest[0] < 0 || dest[0] > width) && (dest[1] < 0 || dest[1] > height));
 }

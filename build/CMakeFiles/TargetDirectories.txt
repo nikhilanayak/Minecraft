@@ -1,14 +1,3 @@
-/home/nikhil/Programming/Minecraft/build/CMakeFiles/package_source.dir
 /home/nikhil/Programming/Minecraft/build/CMakeFiles/rebuild_cache.dir
-/home/nikhil/Programming/Minecraft/build/CMakeFiles/package.dir
 /home/nikhil/Programming/Minecraft/build/CMakeFiles/edit_cache.dir
 /home/nikhil/Programming/Minecraft/build/CMakeFiles/Minecraft.dir
-/home/nikhil/Programming/Minecraft/build/glfw/CMakeFiles/edit_cache.dir
-/home/nikhil/Programming/Minecraft/build/glfw/CMakeFiles/package_source.dir
-/home/nikhil/Programming/Minecraft/build/glfw/CMakeFiles/rebuild_cache.dir
-/home/nikhil/Programming/Minecraft/build/glfw/CMakeFiles/package.dir
-/home/nikhil/Programming/Minecraft/build/glfw/src/CMakeFiles/edit_cache.dir
-/home/nikhil/Programming/Minecraft/build/glfw/src/CMakeFiles/package_source.dir
-/home/nikhil/Programming/Minecraft/build/glfw/src/CMakeFiles/rebuild_cache.dir
-/home/nikhil/Programming/Minecraft/build/glfw/src/CMakeFiles/package.dir
-/home/nikhil/Programming/Minecraft/build/glfw/src/CMakeFiles/glfw.dir

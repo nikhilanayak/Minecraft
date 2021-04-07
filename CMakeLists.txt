@@ -9,28 +9,18 @@ file(GLOB source_files "src/*.c")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 
-include_directories(ThirdPartyIncludes)
-include_directories("glfw/include")
-
-add_subdirectory("glfw")
-#set(DBUILD_SHARED_LIBS, "ON")
-#add_subdirectory("raylib")
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
 add_executable(Minecraft ${source_files} "src/glad.c")
 
 
-target_link_libraries(Minecraft ${OPENGL_LIBRARY})
-if (WIN32)
-target_link_libraries(Minecraft "opengl32.lib")
-endif (WIN32)
-if (UNIX)
-target_link_libraries(Minecraft "-lGL")
-set(CMAKE_C_FLAGS "-ggdb3")
-endif (UNIX)
-target_link_libraries(Minecraft glfw ${GLFW_LIBRARIES})
+target_link_libraries(Minecraft "glfw")
+
 
 if (UNIX)
-    #target_compile_options(Minecraft PRIVATE "-w")
+    target_link_libraries(Minecraft "m")
+    target_link_libraries(Minecraft "dl")
+    target_compile_options(Minecraft PRIVATE "-w")
 endif()
 if ( MSVC )
     target_compile_options(Minecraft PRIVATE "/W4")

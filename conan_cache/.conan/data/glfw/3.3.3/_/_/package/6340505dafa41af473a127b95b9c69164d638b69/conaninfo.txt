@@ -1,0 +1,37 @@
+[settings]
+    arch=x86_64
+    build_type=Release
+    compiler=gcc
+    compiler.version=9
+    os=Linux
+
+[requires]
+    opengl/system
+    xorg/system
+
+[options]
+    fPIC=True
+    shared=False
+    vulkan_static=False
+
+[full_settings]
+    arch=x86_64
+    build_type=Release
+    compiler=gcc
+    compiler.version=9
+    os=Linux
+
+[full_requires]
+    opengl/system:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+    xorg/system:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+
+[full_options]
+    fPIC=True
+    shared=False
+    vulkan_static=False
+
+[recipe_hash]
+    86aaea5e0cbeb1c5d515821ea49e25dd
+
+[env]
+

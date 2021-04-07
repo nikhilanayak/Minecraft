@@ -12,7 +12,7 @@
 #include <cglm/mat3.h>
 
 #include "../include/shader.h"
-#include "../include/gl_vert.h"
+#include "../include/gl_obj.h"
 #include "../include/datastructures/vec.h"
 #include "../include/util.h"
 
@@ -27,8 +27,7 @@
 
 typedef struct{
     blockstate data[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
-    unsigned int VAO;
-    unsigned int VBO;
+    gl_obj obj;
     unsigned int VBO_len;
     int64_t pos[2];
 

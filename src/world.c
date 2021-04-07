@@ -45,6 +45,7 @@ void add_chunk_from_chunkpos(world *w, int64_t x, int64_t z) {
 			}
 		}
 	}
+    c.data[0][0][0] = 1;
 
 	build_mesh(&c);
 

@@ -1,0 +1,9 @@
+[requires]
+glfw/3.3.3
+raylib/3.5.0
+
+[generators]
+cmake
+
+[imports]
+include, *.h -> ../include @ folder=True

@@ -25,19 +25,12 @@ void build_mesh(chunk *c) {
 	vec_init(&verts);
 
 	unsigned int num_verts = 0;
-
-	float CUBE_SIZE_X;
-	float CUBE_SIZE_Y;
-	float CUBE_SIZE_Z;
+    
 
 	for (int x = 0; x < CHUNK_SIZE; x++) {
 		for (int y = 0; y < CHUNK_HEIGHT; y++) {
 			for (int z = 0; z < CHUNK_SIZE; z++) {
 				if (c->data[x][y][z] == 1) {
-					CUBE_SIZE_X = CUBE_SIZE + x;
-					CUBE_SIZE_Y = CUBE_SIZE + y;
-					CUBE_SIZE_Z = CUBE_SIZE + z;
-
 					if (x - 1 < 0 || c->data[x - 1][y][z] == 0) {
 						addrow(verts, -CUBE_SIZE + x, CUBE_SIZE + y, CUBE_SIZE + z, 1.0f,
 							   0.0f);
@@ -138,13 +131,15 @@ void build_mesh(chunk *c) {
 	}
 
 	c->VBO_len = num_verts;
+    //bind_vert(&c->obj, verts.data, num_verts);
+    
 	fprintf(stderr, "%d", num_verts);
 	fprintf(stderr, "\n");
 
-	glGenVertexArrays(1, &c->VAO);
-	glGenBuffers(1, &c->VBO);
-	glBindVertexArray(c->VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, c->VBO);
+	glGenVertexArrays(1, &c->obj.VAO);
+	glGenBuffers(1, &c->obj.VBO);
+	glBindVertexArray(c->obj.VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, c->obj.VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 5 * num_verts, verts.data,
 				 GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
@@ -152,14 +147,15 @@ void build_mesh(chunk *c) {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
 						  (void *)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+    
 
 	vec_deinit(&verts);
 }
 
 void render_chunk(chunk *c, mat4 model, unsigned int modelLoc) {
     glm_translate_make(model, (vec3){c->pos[0]*CHUNK_SIZE, 0, c->pos[1]*CHUNK_SIZE});
-	setMat4(modelLoc, model);
-	glBindVertexArray(c->VAO);
+	set_mat4(modelLoc, model);
+	glBindVertexArray(c->obj.VAO);
 	glDrawArrays(GL_TRIANGLES, 0, c->VBO_len);
 }
 

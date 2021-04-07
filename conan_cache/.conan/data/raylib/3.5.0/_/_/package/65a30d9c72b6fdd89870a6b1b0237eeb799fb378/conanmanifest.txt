@@ -1,0 +1,10 @@
+1614506295
+conaninfo.txt: 9c3487fcfb7866157fc922ecd00f0426
+include/physac.h: 3852194964e0bf766d8687944f7db2b7
+include/raudio.h: 26d99a28c316361d5f9e48ab7b675072
+include/raylib.h: b09db2f6a668f7b517103c9dc82045fe
+include/raymath.h: f1b3e8dc2ccad2bdc390938d705a2187
+include/rlgl.h: f490f4bc750e1b89b71e1c553e972542
+lib/cmake/conan-official-raylib-targets.cmake: 06211f30ef9fc29b59823baca0c31d3f
+lib/libraylib.a: d8d89e328196f0dc91a320a7ec312fa9
+licenses/LICENSE: 315452fd147e626e55e89a3cf26c2772

@@ -1,0 +1,7 @@
+1614160089
+conaninfo.txt: fe4f0ffde0e1561aa1fa6d024f05cd2f
+include/GLFW/glfw3.h: 2ae770142287094a2832019a505e64f5
+include/GLFW/glfw3native.h: ac3c29ac78f8b28cbdc489f58ada8527
+lib/cmake/conan-official-glfw-targets.cmake: 2b9a8fdedc960c88209135af0a8ac726
+lib/libglfw3.a: 7d866efa8bdb2dc59fe377b3c0baf5d3
+licenses/LICENSE.md: 98d93d1ddc537f9b9ea6def64e046b5f

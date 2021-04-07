@@ -1,0 +1,23 @@
+[settings]
+
+
+[requires]
+
+
+[options]
+
+
+[full_settings]
+    os=Linux
+
+[full_requires]
+
+
+[full_options]
+
+
+[recipe_hash]
+    15c5ec306b8c76037866518ef8d87ec9
+
+[env]
+

@@ -61,4 +61,14 @@ GLFWwindow *load_gl(
 	return window;
 }
 
+
+void window_show_mouse(GLFWwindow* w){
+
+	glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+void window_hide_mouse(GLFWwindow* w){
+	glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
 #endif

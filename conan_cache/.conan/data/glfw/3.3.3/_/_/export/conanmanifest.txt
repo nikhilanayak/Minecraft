@@ -1,0 +1,5 @@
+1614160046
+conandata.yml: d85f49602587f0a46fc83d64bbcf0f92
+conanfile.py: a5db575f3e13b75a6926bb7a15a39222
+export_source/CMakeLists.txt: ab647914e876492c1944faa005c2bfca
+export_source/patches/fix-objc-cmake3.19+.patch: 31da7b103bfabb996b0a1e94d17dde7e
