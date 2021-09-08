@@ -23,6 +23,7 @@ ugh ill make this better later sorry :(
 * install glad (add headers to path, glad.c is already added)
 
 * cd build
+* rm -rf * (i have my build settings in here, with a different system, you'll need to regenerate them with the cmake .. command)
 * conan install ..
 * cmake ..
 * cd ..
