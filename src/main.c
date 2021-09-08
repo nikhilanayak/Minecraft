@@ -61,48 +61,6 @@ bool mousemap[12];
 #define Z_POS 4
 #define Z_MIN 5
 
-float faces[6][30] = {
-	{CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f, 0.0f,
-	 CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f, 1.0f,
-	 CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f, 1.0f,
-	 CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f, 1.0f,
-	 CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f, 0.0f,
-	 CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f, 0.0f},
-
-	{-CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f, 0.0f,
-	 -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f, 1.0f,
-	 -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f, 1.0f,
-	 -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f, 1.0f,
-	 -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f, 0.0f,
-	 -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f, 0.0f},
-
-	{-CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 0.0f, 1.0f,
-	 CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f, 1.0f,
-	 CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f, 0.0f,
-	 CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f, 0.0f,
-	 -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0.0f, 0.0f,
-	 -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 0.0f, 1.0f},
-
-	{-CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f, 1.0f,
-	 CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 1.0f, 1.0f,
-	 CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 1.0f, 0.0f,
-	 CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 1.0f, 0.0f,
-	 -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f, 0.0f,
-	 -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f, 1.0f},
-
-	{-CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f, 0.0f,
-	 CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 1.0f, 0.0f,
-	 CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f, 1.0f,
-	 CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f, 1.0f,
-	 -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0.0f, 1.0f,
-	 -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f, 0.0f},
-
-	{-CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f, 0.0f,
-	 CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 1.0f, 0.0f,
-	 CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f, 1.0f,
-	 CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f, 1.0f,
-	 -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 0.0f, 1.0f,
-	 -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f, 0.0}};
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
 						 int mods);
@@ -132,108 +90,6 @@ int main(void) {
 
 	dirt_tex = load_tex("assets/dirt.png");
 	hover_tex = load_tex("assets/hover.png");
-
-	GLuint cube_VAOs[6];
-	GLuint cube_VBOs[6];
-
-	gl_obj cube;
-	vec_t(float) verts;
-	vec_init(&verts);
-
-	{
-		unsigned int num_verts = 0;
-		int x = 0, y = 0, z = 0;
-
-		addrow(verts, -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   0.0f);
-		addrow(verts, -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f,
-			   1.0f);
-		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   1.0f);
-		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   1.0f);
-		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f,
-			   0.0f);
-		addrow(verts, -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   0.0f);
-		num_verts += 6;
-
-		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   0.0f);
-		addrow(verts, CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f,
-			   1.0f);
-		addrow(verts, CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   1.0f);
-		addrow(verts, CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   1.0f);
-		addrow(verts, CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f,
-			   0.0f);
-		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   0.0f);
-		num_verts += 6;
-
-		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   1.0f);
-		addrow(verts, CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 1.0f,
-			   1.0f);
-		addrow(verts, CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   0.0f);
-		addrow(verts, CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   0.0f);
-		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f,
-			   0.0f);
-		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   1.0f);
-		num_verts += 6;
-
-		addrow(verts, -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   1.0f);
-		addrow(verts, CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f,
-			   1.0f);
-		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   0.0f);
-		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   0.0f);
-		addrow(verts, -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0.0f,
-			   0.0f);
-		addrow(verts, -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   1.0f);
-		num_verts += 6;
-
-		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   0.0f);
-		addrow(verts, CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 1.0f,
-			   0.0f);
-		addrow(verts, CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f,
-			   1.0f);
-		addrow(verts, CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 1.0f,
-			   1.0f);
-		addrow(verts, -CUBE_SIZE, CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   1.0f);
-		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE, 0.0f,
-			   0.0f);
-		num_verts += 6;
-		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f,
-			   0.0f);
-		addrow(verts, CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   0.0f);
-		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   1.0f);
-		addrow(verts, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1.0f,
-			   1.0f);
-		addrow(verts, -CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0.0f,
-			   1.0f);
-		addrow(verts, -CUBE_SIZE, -CUBE_SIZE, CUBE_SIZE, 0.0f,
-			   0.0f);
-		num_verts += 6;
-
-		fprintf(stderr, "%d", num_verts);
-		fprintf(stderr, "\n");
-
-		bind_vert(&cube, verts.data, 5 * num_verts);
-
-		vec_deinit(&verts);
-	}
 
 	GLuint program = create_shader("assets/shader.vs", "assets/shader.fs");
 	glUseProgram(program);
@@ -347,70 +203,12 @@ int main(void) {
 
 		for (int x = chunk_pos.x - RENDER_DISTANCE / 2; x <= chunk_pos.x + RENDER_DISTANCE / 2; x++) {
 			for (int z = chunk_pos.z - RENDER_DISTANCE / 2; z <= chunk_pos.z + RENDER_DISTANCE / 2; z++) {
-				//render_chunk_at_chunk_pos(&main_world, x, z, model, modelLoc);
+				render_chunk_at_chunk_pos(&main_world, x, z, model, modelLoc);
 			}
 		}
 
-		vec3 cull_point = {0.0f, 0.0f, 0.0f};
-		int seen = 0;
-		bool seen_arr[2][2][2] = {false};
-#define CUBE_SIZE 0.5
-		for (int x = 0; x < 2; x++) {
-			for (int y = 0; y < 2; y++) {
-				for (int z = 0; z < 2; z++) {
-					seen_arr[x][y][z] = world_point_seen(
-						(vec3){
-							cull_point[0] + (x ? CUBE_SIZE : -CUBE_SIZE),
-							cull_point[1] + (y ? CUBE_SIZE : -CUBE_SIZE),
-							cull_point[2] + (z ? CUBE_SIZE : -CUBE_SIZE)},
-						view, projection, width, height);
-					seen += seen_arr[x][y][z];
-				}
-			}
-		}
-
-		for (int x = 0; x < 2; x++) {
-			for (int y = 0; y < 2; y++) {
-				printf("%d ", seen_arr[x][y][0]);
-			}
-			puts("\n");
-		}
-
-		if (seen) {
-			glm_translate_make(model, (vec3){0.0f, 0.0f, 0.0f});
-			set_mat4(modelLoc, model);
-			glBindVertexArray(cube.VAO);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		} else {
-			printf("not rendering\n\n");
-		}
-
-		if (true) {
-			nk_glfw3_new_frame(&nk_glfw_obj);
-
-			if (nk_begin(ctx, "Demo", nk_rect(0, 0, width / 5, height / 5),
-						 NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
-							 NK_WINDOW_MINIMIZABLE)) {
-
-				nk_layout_row_dynamic(ctx, 30, 2);
-
-				char str[40] = {0};
-				for (int x = 0; x < 2; x++) {
-					for (int y = 0; y < 2; y++) {
-						if (seen_arr[x][y][0]) {
-							nk_label(ctx, "0", NK_TEXT_LEFT);
-						} else {
-							nk_label(ctx, "1", NK_TEXT_LEFT);
-						}
-					}
-				}
-
-				nk_label(ctx, str, NK_TEXT_LEFT);
-			}
-			nk_end(ctx);
-
-			nk_glfw3_render(&nk_glfw_obj, NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
-			glEnable(GL_DEPTH_TEST);
+		//nk_glfw3_render(&nk_glfw_obj, NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
+		glEnable(GL_DEPTH_TEST);
 		}
 
 		glfwSwapBuffers(window);
